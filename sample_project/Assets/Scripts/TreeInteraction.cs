@@ -14,10 +14,12 @@ public class TreeInteraction : MonoBehaviour
     private Button btn;
 
     public GameObject sphere;
-
+    public GameObject feet;
+    
     private bool isShowingFadeOut = false;
     private float fadeOutTime = 2f;
 
+    public IEnumerator movingToFeetCorutine;
     
     private void MyMethod() // 반환도 없고 인자도 없는 메서드
     {
@@ -62,7 +64,7 @@ public class TreeInteraction : MonoBehaviour
         // 유연한 코드 작성 가능하게 한다.
         
         //btn.onClick.RemoveListener();
-        sphere = GameObject.Find("Sphere");
+        movingToFeetCorutine = PassToFeet();
     }
 
     void ShowChoices(string title, List<string> choices)
@@ -80,18 +82,24 @@ public class TreeInteraction : MonoBehaviour
             float executedTime = fadeOutTime;
             // 방법 2 - 어짜피 텍스트 가져와야하니까 텍스트를 캡쳐하기
             string choiceText = "선택! : " + choices[i];
+            
             newButton.GetComponent<Button>().onClick.AddListener(() =>
             {
                 // 이건 왜 안될까요?!
                 // int temp = i;
                 OnChoiceSelected(choiceText, executedTime);
+
+                if (choiceText.Equals("선택! : 신두형에게 패스하기"))
+                {
+                    PassToChristiano();
+                }
             });
             
             RectTransform buttonRect = newButton.GetComponent<RectTransform>();
             buttonRect.anchoredPosition = new Vector2(0, -i * buttonSpacing);
         }
     }
-
+    
     void OnChoiceSelected(string choice, float executedTime)
     {
         selectedOptionText.text = choice;
@@ -169,7 +177,25 @@ public class TreeInteraction : MonoBehaviour
         isShowingFadeOut = false;
         ResetText();
     }
+    
+    private void PassToChristiano()
+    {
+        StartCoroutine(movingToFeetCorutine);
+    }
 
+    public IEnumerator PassToFeet()
+    {
+        Rigidbody rigid = sphere.GetComponent<Rigidbody>();
+        rigid.AddForce(Vector3.up * 10);
+        for (int i = 0; i < 20; i++)
+        {
+            rigid.AddForce((feet.transform.position - sphere.transform.position) * 10);            
+        }
+        
+        
+        yield return new WaitForSeconds(.1f);
+    }
+    
     private void ResetText()
     {
         Color c = selectedOptionText.color;
